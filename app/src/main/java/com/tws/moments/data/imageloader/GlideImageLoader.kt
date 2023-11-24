@@ -1,4 +1,4 @@
-package com.tws.moments.imageloader
+package com.tws.moments.data.imageloader
 
 import android.content.Context
 import android.widget.ImageView

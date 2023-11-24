@@ -6,7 +6,7 @@ import android.text.Spanned
 import android.text.style.ClickableSpan
 import android.text.style.ForegroundColorSpan
 import android.view.View
-import com.tws.moments.views.span.NoUnderLineSpan
+import com.tws.moments.presentation.views.span.NoUnderLineSpan
 
 fun String.clickableSpan(onClick: ((View) -> Unit)? = null): SpannableString {
     return SpannableString(this).also {
