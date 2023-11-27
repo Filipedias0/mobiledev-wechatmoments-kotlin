@@ -19,7 +19,6 @@ import com.tws.moments.presentation.views.itemdecoration.MomentDividerItemDecora
 import org.koin.android.ext.android.inject
 
 private const val TAG = "MainActivity##"
-
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
 

@@ -1,5 +1,6 @@
 package com.tws.moments.presentation.viewModels
 
+import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -51,6 +52,10 @@ class MainViewModel(
             } catch (e: Exception) {
                 e.printStackTrace()
                 null
+            }
+
+            if (result != null) {
+                Log.d("loadTweets", result[0].content.toString())
             }
 
             allTweets = result

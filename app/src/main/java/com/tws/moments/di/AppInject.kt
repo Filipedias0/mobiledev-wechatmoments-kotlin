@@ -9,6 +9,7 @@ import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterF
 import com.tws.moments.TWApplication
 import com.tws.moments.data.imageloader.ImageLoader
 import com.tws.moments.data.remote.api.MomentService
+import com.tws.moments.data.remote.api.RetrofitInstance
 import com.tws.moments.data.repository.MomentRepositoryImpl
 import com.tws.moments.domain.repository.MomentRepository
 import com.tws.moments.presentation.viewModels.MainViewModel
@@ -44,7 +45,7 @@ object AppInject {
     }
 
     private val dataModule = module {
-        single<MomentRepository> { MomentRepositoryImpl() }
+        single<MomentRepository> { MomentRepositoryImpl(RetrofitInstance.momentService) }
     }
 
     private val networkModule = module {
@@ -55,8 +56,6 @@ object AppInject {
         single {
             gsonProvider()
         }
-
-
 
         single {
             createService<MomentService>(get(), get())
