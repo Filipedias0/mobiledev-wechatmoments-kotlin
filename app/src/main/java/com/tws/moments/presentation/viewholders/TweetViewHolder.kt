@@ -5,6 +5,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.tws.moments.TWApplication
+import com.tws.moments.data.imageloader.ImageLoader
 import com.tws.moments.presentation.adapters.CommentsAdapter
 import com.tws.moments.presentation.adapters.ImagesAdapter
 import com.tws.moments.data.remote.api.dto.CommentBean
@@ -18,7 +19,7 @@ import com.tws.moments.presentation.views.itemdecoration.MarginItemDecoration
 
 private const val IMAGE_SPAN_COUNT = 3
 
-class TweetViewHolder(private val binding: LayoutBaseTweetBinding) :
+class TweetViewHolder(private val binding: LayoutBaseTweetBinding, private val imageLoader: ImageLoader) :
     RecyclerView.ViewHolder(binding.root) {
 
     init {
@@ -28,7 +29,6 @@ class TweetViewHolder(private val binding: LayoutBaseTweetBinding) :
 
     private lateinit var imagesAdapter: ImagesAdapter
     private lateinit var commentsAdapter: CommentsAdapter
-    private var imageLoader = TWApplication.imageLoader
     fun bind(tweet: TweetBean) {
         renderTextContent(tweet.content)
         renderImages(tweet.images)
@@ -108,7 +108,7 @@ class TweetViewHolder(private val binding: LayoutBaseTweetBinding) :
     }
 
     private fun addTweetImagesView() {
-        imagesAdapter = ImagesAdapter()
+        imagesAdapter = ImagesAdapter(imageLoader)
         binding.imagesRecyclerView.addItemDecoration(ImagesDecoration(itemView.context.dip(5)))
         binding.imagesRecyclerView.adapter = imagesAdapter
     }

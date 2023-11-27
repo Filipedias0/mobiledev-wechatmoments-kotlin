@@ -6,10 +6,11 @@ import android.widget.ImageView
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.recyclerview.widget.RecyclerView
 import com.tws.moments.TWApplication
+import com.tws.moments.data.imageloader.ImageLoader
 import com.tws.moments.utils.dip
 
-class ImagesAdapter : RecyclerView.Adapter<ImagesAdapter.ImageHolder>() {
-    var onImageClick: ((AppCompatImageView) -> Unit)? = null
+class ImagesAdapter(private val imageLoader: ImageLoader) : RecyclerView.Adapter<ImagesAdapter.ImageHolder>() {
+    private var onImageClick: ((AppCompatImageView) -> Unit)? = null
 
     var images: List<String>? = null
         set(value) {
@@ -37,7 +38,7 @@ class ImagesAdapter : RecyclerView.Adapter<ImagesAdapter.ImageHolder>() {
         (holder.itemView as? AppCompatImageView)?.let {
             val url = images!![position]
             it.tag = url
-            TWApplication.imageLoader.displayImage(url, it)
+            imageLoader.displayImage(url, it)
         }
     }
 

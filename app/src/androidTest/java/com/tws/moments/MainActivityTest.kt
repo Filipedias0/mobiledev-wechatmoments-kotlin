@@ -22,4 +22,14 @@ class MainActivityTest {
             .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
     }
 
+    @Test
+    fun checkItemsLoadedInRecyclerView() {
+        Thread.sleep(3000)
+
+        val expectedItemCount = 5
+
+        Espresso.onView(ViewMatchers.withId(R.id.recyclerView))
+            .check(RecyclerViewItemCountAssertion(expectedItemCount))
+    }
+
 }

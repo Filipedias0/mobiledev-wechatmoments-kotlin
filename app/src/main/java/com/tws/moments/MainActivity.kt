@@ -1,37 +1,32 @@
 package com.tws.moments
 
 import android.graphics.Color
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.tws.moments.data.imageloader.ImageLoader
 import com.tws.moments.presentation.adapters.MomentsAdapter
-import com.tws.moments.data.repository.MomentRepository
-import com.tws.moments.data.remote.api.RetrofitInstance
 import com.tws.moments.databinding.ActivityMainBinding
+import com.tws.moments.presentation.adapters.ImagesAdapter
 import com.tws.moments.utils.ScreenAdaptiveUtil
 import com.tws.moments.utils.dip
 import com.tws.moments.presentation.viewModels.MainViewModel
-import com.tws.moments.presentation.viewModels.factories.MainViewModelFactory
 import com.tws.moments.presentation.views.LoadMoreListener
 import com.tws.moments.presentation.views.itemdecoration.MomentDividerItemDecoration
+import org.koin.android.ext.android.inject
 
 private const val TAG = "MainActivity##"
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
 
-    private val apiClient = RetrofitInstance.momentService
-    private val viewModel: MainViewModel by viewModels {
-        val repository = MomentRepository(apiClient)
-        MainViewModelFactory(repository)
-    }
+    private val viewModel by inject<MainViewModel>()
 
-    private val adapter = MomentsAdapter()
+    private val imageLoader by inject<ImageLoader>()
+    private val adapter = MomentsAdapter(imageLoader)
 
     private var reqPageIndex = 1
 

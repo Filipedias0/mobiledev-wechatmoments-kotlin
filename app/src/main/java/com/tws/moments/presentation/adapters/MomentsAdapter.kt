@@ -3,6 +3,7 @@ package com.tws.moments.presentation.adapters
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.tws.moments.data.imageloader.ImageLoader
 import com.tws.moments.data.remote.api.dto.TweetBean
 import com.tws.moments.data.remote.api.dto.UserBean
 import com.tws.moments.databinding.ItemMomentHeadBinding
@@ -14,7 +15,9 @@ import com.tws.moments.presentation.viewholders.TweetViewHolder
 private const val TYPE_TWEET = 1
 private const val TYPE_HEAD = 1000
 
-class MomentsAdapter() :
+class MomentsAdapter(
+    private val imageLoader: ImageLoader
+) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     var tweets: MutableList<TweetBean>? = null
@@ -42,15 +45,17 @@ class MomentsAdapter() :
                     LayoutInflater.from(parent.context),
                     parent,
                     false
-                )
+                ),
+                imageLoader
             )
 
             TYPE_TWEET -> TweetViewHolder(
                 LayoutBaseTweetBinding.inflate(
                     LayoutInflater.from(parent.context),
                     parent,
-                    false
-                )
+                    false,
+                ),
+                imageLoader
             )
 
             else -> throw IllegalStateException("unknown view type $viewType")

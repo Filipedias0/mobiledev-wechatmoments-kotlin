@@ -10,7 +10,6 @@ import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
@@ -21,7 +20,7 @@ import org.junit.rules.TestRule
 
 class ViewModelIntegrationtest {
 
-    private lateinit var momentRepository: MomentRepository
+    private lateinit var momentRepositoryImpl: MomentRepositoryImpl
     private lateinit var momentService: MomentService
     private lateinit var mainViewModel: MainViewModel
 
@@ -38,15 +37,15 @@ class ViewModelIntegrationtest {
         val dispatcher = Dispatchers.IO
 
         momentService = mockk()
-        momentRepository = MomentRepository(momentService)
-        mainViewModel = MainViewModel(momentRepository, dispatcher)
+        momentRepositoryImpl = MomentRepositoryImpl(momentService)
+        mainViewModel = MainViewModel(momentRepositoryImpl, dispatcher)
     }
 
     @Test
     fun `loadUserInfo should update userBean value on successful repository call`() = runTest {
         val fakeUser = TestUtils.generateFakeUser()
 
-        coEvery { momentRepository.fetchUser() } returns fakeUser
+        coEvery { momentRepositoryImpl.fetchUser() } returns fakeUser
 
         val result = mainViewModel.userBean.getOrAwaitValue()
 
@@ -55,7 +54,7 @@ class ViewModelIntegrationtest {
 
     @Test
     fun `loadUserInfo should not update userBean value on repository call failure`() = runTest {
-        coEvery { momentRepository.fetchUser() } throws Exception()
+        coEvery { momentRepositoryImpl.fetchUser() } throws Exception()
 
         val userBean = mainViewModel.userBean.getOrAwaitValue()
 
@@ -66,7 +65,7 @@ class ViewModelIntegrationtest {
     fun `loadTweets should update tweets value on successful repository call`() = runTest {
         val fakeTweets = TestUtils.generateFakeTweets(1)
 
-        coEvery { momentRepository.fetchTweets() } returns fakeTweets
+        coEvery { momentRepositoryImpl.fetchTweets() } returns fakeTweets
 
         val result = mainViewModel.tweets.getOrAwaitValue()
 
@@ -75,7 +74,7 @@ class ViewModelIntegrationtest {
 
     @Test
     fun `loadTweets should not update tweets value on repository call failure`() = runTest {
-        coEvery { momentRepository.fetchTweets() } throws Exception()
+        coEvery { momentRepositoryImpl.fetchTweets() } throws Exception()
 
         val tweets = mainViewModel.tweets.getOrAwaitValue()
 

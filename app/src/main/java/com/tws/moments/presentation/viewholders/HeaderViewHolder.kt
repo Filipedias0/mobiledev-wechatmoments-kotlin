@@ -2,12 +2,12 @@ package com.tws.moments.presentation.viewholders
 
 import androidx.recyclerview.widget.RecyclerView
 import com.tws.moments.TWApplication
+import com.tws.moments.data.imageloader.ImageLoader
 import com.tws.moments.data.remote.api.dto.UserBean
 import com.tws.moments.databinding.ItemMomentHeadBinding
 
-class HeaderViewHolder(private val binding: ItemMomentHeadBinding) :
+class HeaderViewHolder(private val binding: ItemMomentHeadBinding, private val imageLoader: ImageLoader) :
     RecyclerView.ViewHolder(binding.root) {
-    private var imageLoader = TWApplication.imageLoader
 
     fun bind(userBean: UserBean?) {
         with(binding){

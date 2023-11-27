@@ -2,7 +2,6 @@ package com.tws.moments.data.repository
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.tws.moments.data.remote.api.MomentService
-import com.tws.moments.data.remote.api.dto.UserBean
 import com.tws.moments.testUtils.MainDispatcherRule
 import com.tws.moments.testUtils.TestUtils
 import io.mockk.coEvery
@@ -15,9 +14,9 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
 
-class MomentRepositoryTest {
+class MomentRepositoryImplTest {
 
-    private lateinit var momentRepository: MomentRepository
+    private lateinit var momentRepositoryImpl: MomentRepositoryImpl
     private lateinit var momentService: MomentService
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -30,7 +29,7 @@ class MomentRepositoryTest {
     @Before
     fun setUp() {
         momentService = mockk()
-        momentRepository = MomentRepository(momentService)
+        momentRepositoryImpl = MomentRepositoryImpl(momentService)
     }
 
     @Test
@@ -39,7 +38,7 @@ class MomentRepositoryTest {
 
         coEvery { momentService.user("jsmith") } returns user
 
-        val fetchedUser = momentRepository.fetchUser()
+        val fetchedUser = momentRepositoryImpl.fetchUser()
 
         assertEquals(user, fetchedUser)
     }
@@ -50,7 +49,7 @@ class MomentRepositoryTest {
 
         coEvery { momentService.tweets("jsmith") } returns tweets
 
-        val fetchedTweets = momentRepository.fetchTweets()
+        val fetchedTweets = momentRepositoryImpl.fetchTweets()
 
         assertEquals(tweets, fetchedTweets)
     }

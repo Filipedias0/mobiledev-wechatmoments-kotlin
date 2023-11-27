@@ -1,7 +1,7 @@
 package com.tws.moments.presentation.viewmodels
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import com.tws.moments.data.repository.MomentRepository
+import com.tws.moments.data.repository.MomentRepositoryImpl
 import com.tws.moments.data.remote.api.dto.TweetBean
 import com.tws.moments.presentation.viewModels.MainViewModel
 import com.tws.moments.testUtils.MainDispatcherRule
@@ -22,7 +22,7 @@ class MainViewModelUnitTest {
     private val PAGE_TWEET_COUNT = 5
 
     private lateinit var mainViewModel: MainViewModel
-    private lateinit var momentRepository: MomentRepository
+    private lateinit var momentRepositoryImpl: MomentRepositoryImpl
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @get:Rule
@@ -35,8 +35,8 @@ class MainViewModelUnitTest {
     fun setUp() {
         val dispatcher = Dispatchers.IO
 
-        momentRepository = mockk()
-        mainViewModel = MainViewModel(momentRepository, dispatcher)
+        momentRepositoryImpl = mockk()
+        mainViewModel = MainViewModel(momentRepositoryImpl, dispatcher)
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -44,7 +44,7 @@ class MainViewModelUnitTest {
     fun testFetchTweets() = runTest {
         val fakeTweets: List<TweetBean> = TestUtils.generateFakeTweets(1)
 
-        coEvery { momentRepository.fetchTweets() } returns fakeTweets
+        coEvery { momentRepositoryImpl.fetchTweets() } returns fakeTweets
 
         mainViewModel.refreshTweets()
 
@@ -67,7 +67,7 @@ class MainViewModelUnitTest {
     fun testPageCount_withOnePage() = runTest {
         val fakeTweets: List<TweetBean> = TestUtils.generateFakeTweets(PAGE_TWEET_COUNT)
 
-        coEvery { momentRepository.fetchTweets() } returns fakeTweets
+        coEvery { momentRepositoryImpl.fetchTweets() } returns fakeTweets
 
         mainViewModel.refreshTweets()
 
@@ -82,7 +82,7 @@ class MainViewModelUnitTest {
     fun `loadUserInfo should update userBean value on successful repository call`() = runTest {
         val fakeUser = TestUtils.generateFakeUser()
 
-        coEvery { momentRepository.fetchUser() } returns fakeUser
+        coEvery { momentRepositoryImpl.fetchUser() } returns fakeUser
 
         val teste = mainViewModel.userBean.getOrAwaitValue()
 
@@ -92,7 +92,7 @@ class MainViewModelUnitTest {
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun `loadUserInfo should not update userBean value on repository call failure`() = runTest {
-        coEvery { momentRepository.fetchUser() } throws Exception()
+        coEvery { momentRepositoryImpl.fetchUser() } throws Exception()
 
         val userBean = mainViewModel.userBean.getOrAwaitValue()
 
@@ -104,7 +104,7 @@ class MainViewModelUnitTest {
     fun `test page count with number of tweets divisible by 5`() = runTest {
         val fakeTweets: List<TweetBean> = TestUtils.generateFakeTweets(10)
 
-        coEvery { momentRepository.fetchTweets() } returns fakeTweets
+        coEvery { momentRepositoryImpl.fetchTweets() } returns fakeTweets
 
         mainViewModel.tweets.getOrAwaitValue()
 
@@ -125,7 +125,7 @@ class MainViewModelUnitTest {
     fun `testLoadMoreTweets with index greater than pageIndex`() = runTest{
         val fakeTweets: List<TweetBean> = TestUtils.generateFakeTweets(1)
 
-        coEvery { momentRepository.fetchTweets() } returns fakeTweets
+        coEvery { momentRepositoryImpl.fetchTweets() } returns fakeTweets
 
         val tweets = mainViewModel.tweets.getOrAwaitValue()
 
@@ -141,7 +141,7 @@ class MainViewModelUnitTest {
     fun `test page count with number of tweets not divisible by 5`() = runTest {
         val fakeTweets: List<TweetBean> = TestUtils.generateFakeTweets(11)
 
-        coEvery { momentRepository.fetchTweets() } returns fakeTweets
+        coEvery { momentRepositoryImpl.fetchTweets() } returns fakeTweets
 
         mainViewModel.tweets.getOrAwaitValue()
 
@@ -153,7 +153,7 @@ class MainViewModelUnitTest {
     fun `testLoadMoreTweets with valid index`() = runTest{
         val fakeTweets: List<TweetBean> = TestUtils.generateFakeTweets(1)
 
-        coEvery { momentRepository.fetchTweets() } returns fakeTweets
+        coEvery { momentRepositoryImpl.fetchTweets() } returns fakeTweets
 
         val tweets = mainViewModel.tweets.getOrAwaitValue()
 

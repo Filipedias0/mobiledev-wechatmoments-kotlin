@@ -3,9 +3,10 @@ package com.tws.moments.presentation.viewModels
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.tws.moments.data.repository.MomentRepository
+import com.tws.moments.data.repository.MomentRepositoryImpl
 import com.tws.moments.data.remote.api.dto.TweetBean
 import com.tws.moments.data.remote.api.dto.UserBean
+import com.tws.moments.domain.repository.MomentRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.launch
 import kotlin.math.min
