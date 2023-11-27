@@ -1,7 +1,6 @@
 package com.tws.moments
 
 import android.app.Application
-import com.tws.moments.data.imageloader.ImageLoader
 import com.tws.moments.di.AppInject
 import com.tws.moments.utils.ScreenAdaptiveUtil
 import org.koin.android.ext.koin.androidContext

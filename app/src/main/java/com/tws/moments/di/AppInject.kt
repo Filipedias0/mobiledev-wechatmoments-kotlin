@@ -3,13 +3,10 @@ package com.tws.moments.di
 import android.content.Context
 import android.widget.ImageView
 import com.bumptech.glide.Glide
-import com.google.gson.Gson
-import com.google.gson.GsonBuilder
 import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
 import com.tws.moments.TWApplication
 import com.tws.moments.data.imageloader.ImageLoader
 import com.tws.moments.data.remote.api.MomentService
-import com.tws.moments.data.remote.api.RetrofitInstance
 import com.tws.moments.data.repository.MomentRepositoryImpl
 import com.tws.moments.domain.repository.MomentRepository
 import com.tws.moments.presentation.viewModels.MainViewModel
@@ -19,6 +16,7 @@ import okhttp3.Cache
 import okhttp3.CacheControl
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
+import okhttp3.Response
 import org.koin.android.ext.koin.androidApplication
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.core.module.Module
@@ -29,13 +27,13 @@ import java.io.File
 import java.util.concurrent.TimeUnit
 
 object AppInject {
-    private val BASE_URL = "http://10.0.2.2:2727/"
+
+    private const val BASE_URL = "http://10.0.2.2:2727/"
 
     fun modules(): List<Module> =
         ArrayList<Module>().apply {
             add(networkModule)
             add(dataModule)
-            //add(useCasesModule)
             add(viewModelsModule)
         }
 
@@ -45,31 +43,41 @@ object AppInject {
     }
 
     private val dataModule = module {
-        single<MomentRepository> { MomentRepositoryImpl(RetrofitInstance.momentService) }
+        single<MomentRepository> { MomentRepositoryImpl(get()) }
     }
 
     private val networkModule = module {
-        single {
-            createHttpClient<OkHttpClient>(get(), get())
-        }
-
-        single {
-            gsonProvider()
-        }
-
-        single {
-            createService<MomentService>(get(), get())
-        }
-
-        single{
-            glideImageLoader(get())
-        }
+        single { provideOkHttpClient(androidApplication()) }
+        single { provideRetrofit(BASE_URL, androidApplication(), get()) }
+        single { provideMomentService(get()) }
+        single { provideImageLoader(get()) }
     }
 
     private fun dispatchersProvider(): CoroutineDispatcher = Dispatchers.Main
 
-    private fun gsonProvider(): Gson = GsonBuilder().create()
-    private fun callAdapterFactory(): CoroutineCallAdapterFactory = CoroutineCallAdapterFactory()
+    private fun provideRetrofit(baseUrl: String, context: Context, okHttpClient: OkHttpClient): Retrofit {
+        return Retrofit.Builder()
+            .baseUrl(baseUrl)
+            .addConverterFactory(GsonConverterFactory.create())
+            .addCallAdapterFactory(CoroutineCallAdapterFactory())
+            .client(okHttpClient)
+            .build()
+    }
+
+    private fun provideOkHttpClient(context: Context): OkHttpClient {
+        val cacheSize = 10 * 1024 * 1024 // 10 MiB
+        val httpCacheDirectory: File = File(context.cacheDir, "http-cache")
+        val cache = Cache(httpCacheDirectory, cacheSize.toLong())
+
+        return OkHttpClient.Builder()
+            .addNetworkInterceptor(createCacheInterceptor())
+            .cache(cache)
+            .build()
+    }
+
+    private fun provideMomentService(retrofit: Retrofit): MomentService {
+        return retrofit.create(MomentService::class.java)
+    }
 
     private fun createCacheInterceptor(): Interceptor {
         return Interceptor { chain ->
@@ -87,40 +95,7 @@ object AppInject {
         }
     }
 
-
-    private fun httpCache(
-        application: TWApplication
-    ): Cache {
-        val httpCacheDirectory = File(application.cacheDir, "http-cache")
-        val cacheSize = 10 * 1024 * 1024 // 10 MiB
-
-        return Cache(httpCacheDirectory, cacheSize.toLong())
-    }
-
-    private inline fun <reified T> createHttpClient(
-        cacheInterceptor: Interceptor,
-        httpCache: Cache
-    ): T {
-        return OkHttpClient.Builder()
-            .addNetworkInterceptor(cacheInterceptor)
-            .cache(httpCache)
-            .build() as T
-    }
-
-    private inline fun <reified T> createService(
-        okHttpClient: OkHttpClient,
-        gson: Gson
-    ): T {
-        return Retrofit.Builder()
-            .baseUrl(BASE_URL)
-            .addConverterFactory(GsonConverterFactory.create(gson))
-            .addCallAdapterFactory(CoroutineCallAdapterFactory())
-            .client(okHttpClient)
-            .build()
-            .create(T::class.java)
-    }
-
-    private fun glideImageLoader(context: Context): ImageLoader {
+    private fun provideImageLoader(context: Context): ImageLoader {
         return object : ImageLoader {
             override fun displayImage(url: String?, imageView: ImageView) {
                 if (!url.isNullOrEmpty()) {
@@ -131,5 +106,4 @@ object AppInject {
             }
         }
     }
-
 }
