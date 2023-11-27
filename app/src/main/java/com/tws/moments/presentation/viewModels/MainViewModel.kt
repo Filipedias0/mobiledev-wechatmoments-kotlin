@@ -1,25 +1,25 @@
 package com.tws.moments.presentation.viewModels
 
-import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.tws.moments.data.repository.MomentRepositoryImpl
 import com.tws.moments.data.remote.api.dto.TweetBean
 import com.tws.moments.data.remote.api.dto.UserBean
+import com.tws.moments.domain.interactors.CalculatePageCountUseCase
+import com.tws.moments.domain.interactors.FetchTweetsUseCase
+import com.tws.moments.domain.interactors.FetchUserInfoUseCase
+import com.tws.moments.domain.interactors.PaginateTweetsUseCase
 import com.tws.moments.domain.repository.MomentRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.launch
-import kotlin.math.min
 
 class MainViewModel(
-    private val repository: MomentRepository,
-    private val dispatcher: CoroutineDispatcher
+    private val dispatcher: CoroutineDispatcher,
+    private val calculatePageCountUseCase: CalculatePageCountUseCase,
+    private val fetchTweetsUseCase: FetchTweetsUseCase,
+    private val fetchUserInfoUseCase: FetchUserInfoUseCase,
+    private val paginateTweetsUseCase: PaginateTweetsUseCase
 ) : ViewModel() {
-
-    private  val TAG = "MainViewModel##"
-
-    private  val PAGE_TWEET_COUNT = 5
 
     val userBean: MutableLiveData<UserBean> by lazy {
         MutableLiveData<UserBean>().also { loadUserInfo() }
@@ -31,11 +31,13 @@ class MainViewModel(
 
     private var allTweets: List<TweetBean>? = null
 
-
+    companion object{
+        const val PAGE_TWEET_COUNT = 10
+    }
     private fun loadUserInfo() {
         viewModelScope.launch(dispatcher) {
             val result = try {
-                repository.fetchUser()
+                fetchUserInfoUseCase()
             } catch (e: Exception) {
                 e.printStackTrace()
                 null
@@ -44,18 +46,13 @@ class MainViewModel(
         }
     }
 
-
     private fun loadTweets() {
         viewModelScope.launch(dispatcher) {
             val result = try {
-                repository.fetchTweets()
+                fetchTweetsUseCase()
             } catch (e: Exception) {
                 e.printStackTrace()
                 null
-            }
-
-            if (result != null) {
-                Log.d("loadTweets", result[0].content.toString())
             }
 
             allTweets = result
@@ -73,17 +70,11 @@ class MainViewModel(
     }
 
     val pageCount: Int
-        get() {
-            return when {
-                allTweets.isNullOrEmpty() -> 0
-                allTweets!!.size % PAGE_TWEET_COUNT == 0 -> allTweets!!.size / PAGE_TWEET_COUNT
-                else -> allTweets!!.size / PAGE_TWEET_COUNT + 1
-            }
-        }
+        get() = calculatePageCountUseCase(allTweets)
 
     fun loadMoreTweets(pageIndex: Int, onLoad: (List<TweetBean>?) -> Unit) {
         if (pageIndex < 0) {
-            throw IllegalArgumentException("page index must greater than or equal to 0.")
+            throw IllegalArgumentException("page index must be greater than or equal to 0.")
         }
 
         if (pageIndex > pageCount - 1) {
@@ -92,10 +83,11 @@ class MainViewModel(
 
         viewModelScope.launch(dispatcher) {
             val startIndex = PAGE_TWEET_COUNT * pageIndex
-            val endIndex = min(allTweets!!.size, PAGE_TWEET_COUNT * (pageIndex + 1))
-            val result = allTweets!!.subList(startIndex, endIndex)
+            val endIndex = allTweets?.size?.coerceAtMost(
+                PAGE_TWEET_COUNT * (pageIndex + 1)
+            ) ?: 0
+            val result = allTweets?.subList(startIndex, endIndex)
             onLoad(result)
         }
     }
-
 }

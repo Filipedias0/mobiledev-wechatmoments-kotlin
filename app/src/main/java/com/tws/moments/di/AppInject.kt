@@ -1,22 +1,24 @@
 package com.tws.moments.di
 
+import com.tws.moments.presentation.viewModels.MainViewModel
 import android.content.Context
 import android.widget.ImageView
 import com.bumptech.glide.Glide
 import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
-import com.tws.moments.TWApplication
 import com.tws.moments.data.imageloader.ImageLoader
 import com.tws.moments.data.remote.api.MomentService
 import com.tws.moments.data.repository.MomentRepositoryImpl
+import com.tws.moments.domain.interactors.CalculatePageCountUseCase
+import com.tws.moments.domain.interactors.FetchTweetsUseCase
+import com.tws.moments.domain.interactors.FetchUserInfoUseCase
+import com.tws.moments.domain.interactors.PaginateTweetsUseCase
 import com.tws.moments.domain.repository.MomentRepository
-import com.tws.moments.presentation.viewModels.MainViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import okhttp3.Cache
 import okhttp3.CacheControl
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
-import okhttp3.Response
 import org.koin.android.ext.koin.androidApplication
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.core.module.Module
@@ -34,12 +36,13 @@ object AppInject {
         ArrayList<Module>().apply {
             add(networkModule)
             add(dataModule)
+            add(useCasesModule)
             add(viewModelsModule)
         }
 
     private val viewModelsModule = module {
         single { dispatchersProvider() }
-        viewModel { MainViewModel(get(), get()) }
+        viewModel { MainViewModel(get(), get(), get(), get(), get()) }
     }
 
     private val dataModule = module {
@@ -105,5 +108,12 @@ object AppInject {
                 }
             }
         }
+    }
+
+    private val useCasesModule = module {
+        factory<CalculatePageCountUseCase> { CalculatePageCountUseCase() }
+        factory<FetchTweetsUseCase> { FetchTweetsUseCase(get()) }
+        factory<FetchUserInfoUseCase> { FetchUserInfoUseCase(get()) }
+        factory<PaginateTweetsUseCase> { PaginateTweetsUseCase() }
     }
 }
