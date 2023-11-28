@@ -55,22 +55,18 @@ class MainViewModel(
                 null
             }
 
-            val filteredTweets = filterEmptyTweets(result)
+            allTweets = result
 
-            allTweets = filteredTweets
-
-            if (!allTweets.isNullOrEmpty()) {
-                tweets.value = paginateTweetsUseCase(allTweets, 0)
-            } else {
-                tweets.value = emptyList()
-            }
+            paginateTweets()
         }
     }
 
-    private fun filterEmptyTweets(tweets: List<TweetBean>?): MutableList<TweetBean>? {
-        return tweets?.filter {
-            it.content?.isNotEmpty() == true || it.images?.isNotEmpty() == true
-        }?.toMutableList()
+    private fun paginateTweets(){
+        if (!allTweets.isNullOrEmpty()) {
+            tweets.value = paginateTweetsUseCase(allTweets, 0)
+        } else {
+            tweets.value = emptyList()
+        }
     }
 
     fun refreshTweets() {
@@ -81,12 +77,6 @@ class MainViewModel(
         get() = calculatePageCountUseCase(allTweets)
 
     fun loadMoreTweets(pageIndex: Int, onLoad: (List<TweetBean>?) -> Unit) {
-        if (pageIndex < 0) {
-            throw IllegalArgumentException("page index must be greater than or equal to 0.")
-        }
-
-        Log.d("moretweets", tweets.value?.size.toString())
-
         viewModelScope.launch(dispatcher) {
             val result = paginateTweetsUseCase(allTweets, pageIndex)
             onLoad(result)
