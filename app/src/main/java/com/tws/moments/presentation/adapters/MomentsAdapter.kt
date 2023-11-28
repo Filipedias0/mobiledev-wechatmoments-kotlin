@@ -22,15 +22,11 @@ class MomentsAdapter(
 
     var tweets: MutableList<TweetBean>? = null
         set(value) {
-            field = filterEmptyTweets(value)
+            if (value != null) {
+                field = value.toMutableList()
+            }
             notifyDataSetChanged()
         }
-
-    private fun filterEmptyTweets(tweets: MutableList<TweetBean>?): MutableList<TweetBean>? {
-        return tweets?.filter {
-            it.content?.isNotEmpty() == true || it.images?.isNotEmpty() == true
-        }?.toMutableList()
-    }
 
     var userBean: UserBean? = null
         set(value) {
@@ -83,16 +79,12 @@ class MomentsAdapter(
         if (tweets.isNullOrEmpty() || this.tweets.isNullOrEmpty()) {
             return
         }
-        val filteredTweets = filterEmptyTweets(tweets.toMutableList())
 
-        val newTweetSize = filteredTweets?.size
+        val newTweetSize = tweets.size
         val oldTweetsSize = this.tweets!!.size
-        if (filteredTweets != null) {
-            this.tweets!!.addAll(filteredTweets)
-        }
-        if (newTweetSize != null) {
-            notifyItemRangeInserted(oldTweetsSize + 1, newTweetSize)
-        }
+        this.tweets!!.addAll(tweets)
+
+        notifyItemRangeInserted(oldTweetsSize + 1, newTweetSize)
     }
 
     private fun tweetIndex(position: Int) = position - 1

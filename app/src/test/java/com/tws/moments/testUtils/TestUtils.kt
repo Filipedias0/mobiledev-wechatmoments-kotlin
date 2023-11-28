@@ -20,7 +20,7 @@ object TestUtils {
                 sender,
                 images,
                 comments,
-                null // Sem erro para simular um tweet bem-sucedido
+                null
             )
 
             tweets.add(tweet)

@@ -27,7 +27,7 @@ class MainActivity : AppCompatActivity() {
     private val imageLoader by inject<ImageLoader>()
     private val adapter = MomentsAdapter(imageLoader)
 
-    private var reqPageIndex = 1
+    private var reqPageIndex = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -73,15 +73,16 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun subscribe() {
-        viewModel.userBean.observe(this, Observer {
+        viewModel.userBean.observe(this) {
             adapter.userBean = it
-        })
+        }
 
-        viewModel.tweets.observe(this, Observer {
+        viewModel.tweets.observe(this) {
             binding.swipeRefreshLayout.isRefreshing = false
             reqPageIndex = 1
             adapter.tweets = it.toMutableList()
-        })
+            Log.d("TEstando", "tweets:${it.size}")
+        }
     }
 
     private fun initWindow() {

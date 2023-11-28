@@ -1,5 +1,6 @@
 package com.tws.moments.presentation.viewModels
 
+import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -9,7 +10,6 @@ import com.tws.moments.domain.interactors.CalculatePageCountUseCase
 import com.tws.moments.domain.interactors.FetchTweetsUseCase
 import com.tws.moments.domain.interactors.FetchUserInfoUseCase
 import com.tws.moments.domain.interactors.PaginateTweetsUseCase
-import com.tws.moments.domain.repository.MomentRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.launch
 
@@ -32,7 +32,7 @@ class MainViewModel(
     private var allTweets: List<TweetBean>? = null
 
     companion object{
-        const val PAGE_TWEET_COUNT = 10
+        const val PAGE_TWEET_COUNT = 5
     }
     private fun loadUserInfo() {
         viewModelScope.launch(dispatcher) {
@@ -55,14 +55,22 @@ class MainViewModel(
                 null
             }
 
-            allTweets = result
+            val filteredTweets = filterEmptyTweets(result)
 
-            if ((allTweets?.size ?: 0) > PAGE_TWEET_COUNT) {
-                tweets.value = allTweets?.subList(0, PAGE_TWEET_COUNT)
+            allTweets = filteredTweets
+
+            if (!allTweets.isNullOrEmpty()) {
+                tweets.value = paginateTweetsUseCase(allTweets, 0)
             } else {
-                tweets.value = allTweets
+                tweets.value = emptyList()
             }
         }
+    }
+
+    private fun filterEmptyTweets(tweets: List<TweetBean>?): MutableList<TweetBean>? {
+        return tweets?.filter {
+            it.content?.isNotEmpty() == true || it.images?.isNotEmpty() == true
+        }?.toMutableList()
     }
 
     fun refreshTweets() {
@@ -77,16 +85,10 @@ class MainViewModel(
             throw IllegalArgumentException("page index must be greater than or equal to 0.")
         }
 
-        if (pageIndex > pageCount - 1) {
-            return
-        }
+        Log.d("moretweets", tweets.value?.size.toString())
 
         viewModelScope.launch(dispatcher) {
-            val startIndex = PAGE_TWEET_COUNT * pageIndex
-            val endIndex = allTweets?.size?.coerceAtMost(
-                PAGE_TWEET_COUNT * (pageIndex + 1)
-            ) ?: 0
-            val result = allTweets?.subList(startIndex, endIndex)
+            val result = paginateTweetsUseCase(allTweets, pageIndex)
             onLoad(result)
         }
     }

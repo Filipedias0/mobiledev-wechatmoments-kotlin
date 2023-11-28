@@ -9,7 +9,6 @@ import com.tws.moments.utils.clickableSpan
 
 class CommentsViewHolder(private val binding: ItemCommentBinding) :
     RecyclerView.ViewHolder(binding.root){
-    //private var imageLoader = TWApplication.imageLoader
 
     init {
         binding.tvSimpleComment.movementMethod = LinkMovementMethod.getInstance()

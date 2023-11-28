@@ -41,8 +41,7 @@ class MainActivityTest : BaseUITest() {
         mockNetworkResponse()
     }
 
-    @Test
-    fun checkRecyclerViewVisibility() {
+    @Test    fun checkRecyclerViewVisibility() {
         Espresso.onView(ViewMatchers.withId(R.id.recyclerView))
             .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
     }
