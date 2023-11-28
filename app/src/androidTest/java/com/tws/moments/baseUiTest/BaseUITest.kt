@@ -1,4 +1,5 @@
-import androidx.test.platform.app.InstrumentationRegistry
+package com.tws.moments.baseUiTest
+
 import com.google.gson.Gson
 import com.tws.moments.testUtils.TestUtils
 import okhttp3.mockwebserver.MockResponse
@@ -7,8 +8,6 @@ import org.junit.After
 import org.junit.Before
 import org.koin.core.context.stopKoin
 import org.koin.test.KoinTest
-import java.io.BufferedReader
-import java.io.Reader
 
 abstract class BaseUITest : KoinTest {
 
